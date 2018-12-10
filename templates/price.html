@@ -56,6 +56,9 @@
             },
             tooltip: {
                 trigger: 'axis',
+                axisPointer: {
+                   type: 'cross'
+                }
             },
             xAxis: {
                 type: 'time',
@@ -230,6 +233,17 @@
                 data: p
             })
         }
+        this.drwaDelta = (delta)=>{
+            option.legend.data.push('(高/低)-(开/收)')
+            option.series.push({
+                name: '(高/低)-(开/收)',
+                type: 'line',
+                yAxisIndex:1,
+                color: '#33aadd',
+                showSymbol: false,
+                data: delta
+            })
+        }
 
 
         this.draw = ()=>{
@@ -325,6 +339,11 @@
         echart.drawSHAverage(parseData(priceShakes, (v, k)=>{
             return [
                 v.averange24_sh
+            ]
+        }))
+        echart.drwaDelta(parseData(priceShakes,(v, k)=>{
+            return [
+                v.averange24_hl - v.averange24_oc
             ]
         }))
 

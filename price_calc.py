@@ -37,17 +37,22 @@ def calc_shake():
         state.ocrate = 1000 * round(abs(open - close) / open, 4)
         state.rate = int(100 * abs(open - close) / (high - low))
         state.hlrate = 1000 * round((high - low) / open, 4)
-
+        # 加入当天
         sum_hl = sum_hl + state.hlrate
         sum_oc = sum_oc + state.ocrate
         sum_shake =  sum_shake + state.rate
-        if i >= 24:
-            sum_hl = sum_hl - list[i - 24].hlrate
-            sum_oc = sum_oc - list[i - 24].ocrate
-            sum_shake = sum_shake - list[i - 24].rate
-            state.averange24_hl = sum_hl / 24
-            state.averange24_oc = sum_oc / 24
-            state.averange24_sh = sum_shake / 24
+        term = 24
+        if i >= term:
+            # 移除
+            sum_hl = sum_hl - list[i - term].hlrate
+            sum_oc = sum_oc - list[i - term].ocrate
+            sum_shake = sum_shake - list[i - term].rate
+
+            # 计算均值
+            state.averange24_hl = sum_hl / term
+            state.averange24_oc = sum_oc / term
+            state.averange24_sh = sum_shake / term
+
         if state.rate < 50:
             state.shake = 1
         if state.rate < pre_min:
