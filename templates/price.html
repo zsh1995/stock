@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!-- 引入 ECharts 文件 -->
+    <script type="text/javascript" src="https://cdn.bootcss.com/echarts/4.2.0-rc.2/echarts-en.js"></script>
+    <script type="text/javascript" src="/static/visualmap-setting.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+</head>
+<body>
+    <div id="main" style="width: 90%;height:800px;"></div>
+    <script type="text/javascript"> 
+    let _color = "#fff"
+    let REMOTEHOST = 'http://192.168.8.99:8388'
+    let LOCALHOST = 'http://127.0.0.1:8888'
+    let localhost = LOCALHOST
+    let host = LOCALHOST
+    var upColor = '#ec0000';
+    var upBorderColor = '#8A0000';
+    var downColor = '#00da3c';
+    var downBorderColor = '#008F28';
+    let visualMap = {
+                top: 10,
+                right: 10,
+                show:true,
+                dimension: 2,
+                seriesIndex: [],
+    }
+    visualMap.pieces = pieces_map['peek']
+
+    var log = console.log.bind(console)
+    axios.default.withCredentials=true
+    
+    let index_date
+    let history_price
+    let back_trend_rawdata
+    let rsi1
+    let debug = true
+    let eo = null
+    if(debug) {
+        eo = new EchartObject("main")
+    }
+
+
+    <!--     -->
+    function EchartObject(name){
+        var myChart = echarts.init(document.getElementById(name));
+        var option = {
+            legend: {
+                top: 20,
+                data:[]
+            },
+            title: {
+                text: 'price'
+            },
+            tooltip: {
+                trigger: 'axis',
+            },
+            xAxis: {
+                type: 'time',
+                splitLine: {
+                    show: false
+                }
+            },
+            yAxis: [{
+                type: 'value',
+                <!-- boundaryGap: [0, '100%'], -->
+                splitLine: {
+                    show: false
+                }
+            },{
+                type: 'value',
+                max: 200,
+                <!-- boundaryGap: [0, '100%'], -->
+                splitLine: {
+                    show: false
+                }
+            }],
+            series: [],
+            visualMap: visualMap,
+            toolbox: {
+                left: 'center',
+                feature: {
+                    dataZoom: {
+                        yAxisIndex: 'none'
+                    },
+                    restore: {},
+                    saveAsImage: {}
+                }
+            },
+            dataZoom: [
+            {
+                <!-- type: 'slider', -->
+                <!-- xAxisIndex: 0, -->
+                startValue: '2017-11-10',
+                <!-- filterMode: 'empty' -->
+            },{
+            type: 'inside'
+            }
+        ],
+        };
+        this.drawPrice = (pricesData, showSymbol = false)=>{
+            option.legend.data.push('price')
+            option.series.push({
+                name: 'price',
+                type: 'candlestick',
+//                showSymbol: showSymbol,
+                itemStyle: {
+                    normal: {
+                        color: upColor,
+                        color0: downColor,
+                        borderColor: upBorderColor,
+                        borderColor0: downBorderColor
+                    }
+                },
+                data: pricesData,
+                visualMap: false
+            })
+        };
+        this.drawRSIback = (rsiBack ) => {
+            option.legend.data.push('back_trend')
+            option.series.push({
+                name: 'back_trend',
+                type: 'scatter',
+                <!-- showSymbol: false, -->
+                data: rsiBack
+            })
+            option.visualMap.seriesIndex.push(option.series.length - 1)
+        };
+        this.drawRSIData = (rsiState) => {
+            option.legend.data.push('rsi_data')
+            option.series.push({
+                name: 'rsi_data',
+                type: 'line',
+                yAxisIndex:1,
+                color: '#eee',
+                showSymbol: false,
+                data: rsiState,
+//                visualMap: false
+            })
+        }
+        this.drawPriceShake = (priceShake, showSymbol = false) =>{
+            option.legend.data.push('price_shake_rate')
+            option.series.push({
+                name: 'price_shake_rate',
+                type: 'line',
+                yAxisIndex:1,
+                color: '#eee',
+                showSymbol: showSymbol,
+                data: priceShake,
+            })
+        }
+        this.drawPriceRate = (priceShakeRate, showSymbol = false)=>{
+            option.series.push({
+                name: 'price_shake_warning',
+                type: 'scatter',
+                yAxisIndex:1,
+                <!-- showSymbol: false, -->
+                data: priceShakeRate,
+
+            })
+            option.visualMap.seriesIndex.push(option.series.length - 1)
+            option.legend.data.push('price_shake_warning')
+
+        }
+        this.drawOCPriceShakeRate = (priceshake) => {
+            option.legend.data.push('price_shake_rate(开/收)')
+            option.series.push({
+                name: 'price_shake_rate(开/收)',
+                type: 'line',
+                yAxisIndex:1,
+                color: '#3af331',
+                showSymbol: false,
+                data: priceshake
+            })
+        }
+        this.drawHLPriceShakeRate = (priceshake) =>{
+            option.legend.data.push('price_shake_rate(高/低)')
+            option.series.push({
+                name: 'price_shake_rate(高/低)',
+                type: 'line',
+                yAxisIndex:1,
+                color: '#feaf00',
+                showSymbol: false,
+                data: priceshake
+            })
+        }
+        this.drawHLAverage = (p) => {
+            option.legend.data.push('price_shake均线(高/低)')
+            option.series.push({
+                name: 'price_shake均线(高/低)',
+                type: 'line',
+                yAxisIndex:1,
+                color: '#5100ff',
+                showSymbol: false,
+                data: p
+            })
+        }
+        this.drawHLAverage = (p) => {
+            option.legend.data.push('price_shake均线(高/低)')
+            option.series.push({
+                name: 'price_shake均线(高/低)',
+                type: 'line',
+                yAxisIndex:1,
+                color: '#fff220',
+                showSymbol: false,
+                data: p
+            })
+        }
+        this.drawOCAverage = (p) => {
+            option.legend.data.push('price_shake均线(开/收)')
+            option.series.push({
+                name: 'price_shake均线(开/收)',
+                type: 'line',
+                yAxisIndex:1,
+                color: '#ffb227',
+                showSymbol: false,
+                data: p
+            })
+        }
+        this.drawSHAverage = (p) => {
+            option.legend.data.push('price_shake均线(震荡)')
+            option.series.push({
+                name: 'price_shake均线(震荡)',
+                type: 'line',
+                yAxisIndex:1,
+                color: '#ff3845',
+                showSymbol: false,
+                data: p
+            })
+        }
+
+
+        this.draw = ()=>{
+            myChart.setOption(option);
+        }
+
+    }
+
+    var map = [
+        'NORAMAL',
+        'SHORT_BOTTOM',
+        'SHORT_TOP',
+        'MEDIUM_BOTTOM',
+        'MEDIUM_TOP',
+        'LONG_BOTTOM',
+        'LONG_TOP'
+    ]
+    function parseData(arry, _opener){
+        function defaultOpener(value, index) {
+            return [
+                value
+            ]
+        }
+        if(_opener == undefined) _opener = defaultOpener;
+        return arry.map((v,k) =>{
+            let now = new Date(index_date[k].replace(/(20\d{2})(\d{2})(\d{2})/,'$1-$2-$3'));
+            let vals  = [[now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'),]
+                        .concat(_opener(v, k))
+            return {
+                name: now.toString(),
+                value: vals
+            }
+        })
+    }
+
+    <!-- -->
+
+
+    async function init() {
+        let prices, rsiBacktrendRawdata_, priceShakes
+        [prices, rsiBacktrendRawdata_, priceShakes] = await Promise.all([axios.get(`${localhost}/price`).then((res)=> res.data),
+                    axios.get(`${localhost}/rsi_state`).then((res)=> res.data),
+                    axios.get(`${localhost}/price/shake`).then((res)=> res.data)])
+
+        index_date = prices.date
+        prices = prices.price
+        rsi1 = rsiBacktrendRawdata_.rsi_data.rsi1
+        rsiBacktrendRawdata_= rsiBacktrendRawdata_.rsi_state
+
+
+        let echart = eo == null ? new EchartObject('main') : eo;
+        echart.drawPrice(parseData(prices.open, (v, k)=>{ return [
+            prices.open[k],prices.close[k], prices.high[k], prices.low[k]
+        ]}))
+        echart.drawRSIback(parseData(rsiBacktrendRawdata_, (v, k) => {
+            return [
+                prices.close[k],
+                v.back_trend,
+            ]
+        }))
+        echart.drawRSIData(parseData(rsi1))
+        echart.drawPriceShake(parseData(priceShakes,(v,k)=>{
+            return [
+                v.rate
+            ]
+        }))
+        echart.drawPriceRate(parseData(priceShakes,(v,k)=>{
+            return [
+                v.rate,
+                v.shake
+            ]
+        }))
+        echart.drawOCPriceShakeRate(parseData(priceShakes, (v, k)=>{
+            return [
+                v.ocrate
+            ]
+        }))
+        echart.drawHLPriceShakeRate(parseData(priceShakes, (v, k)=>{
+            return [
+                v.hlrate
+            ]
+        }))
+        echart.drawOCAverage(parseData(priceShakes, (v, k)=>{
+            return [
+                v.averange24_oc
+            ]
+        }))
+        echart.drawHLAverage(parseData(priceShakes, (v, k)=>{
+            return [
+                v.averange24_hl
+            ]
+        }))
+        echart.drawSHAverage(parseData(priceShakes, (v, k)=>{
+            return [
+                v.averange24_sh
+            ]
+        }))
+
+
+
+        echart.draw()
+
+    }
+    init().then(()=> console.log("echart start"))
+    </script>
+</body>
+</html>

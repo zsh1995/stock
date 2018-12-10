@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!-- 引入 ECharts 文件 -->
+    <script type="text/javascript" src="https://cdn.bootcss.com/echarts/4.2.0-rc.2/echarts-en.js"></script>
+    <script type="text/javascript" src="/static/visualmap-setting.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+</head>
+<body>
+    <div id="main" style="width: 1440px;height:800px;"></div>
+    <script type="text/javascript"> 
+    let _color = "#fff"
+    let host = 'http://192.168.8.99:8388'
+    let localhost = 'http://127.0.0.1:8888'
+    var log = console.log.bind(console)
+    axios.default.withCredentials=true
+    let rsi6
+    let rsi12
+    let rsi24
+    let index_date
+    let rsiState
+    let price_rawdata
+    let CHANGEABLE = 2
+    let disabled = 0
+    axios.get(`${localhost}/rsi_state`)
+      .then(function (response) {
+        let httpData = response.data
+        rsi6 = httpData.rsi_data.rsi1
+        rsi12 = httpData.rsi_data.rsi2
+        rsi24 = httpData.rsi_data.rsi3
+        index_date = httpData.rsi_data.date
+        rsiState = httpData.rsi_state
+        return axios.get(`${localhost}/price`)
+      })
+      .then(function(res){
+        price_rawdata = res.data.price.close
+        draw()
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+      let visualMap = {
+                top: 10,
+                right: 10,
+                show:true,
+                dimension: 2,
+                pieces: [{
+                    lte:0,
+                    color: (()=>_color)()
+                },{
+                    gt: 0,
+                    lte: 1,
+                    color: '#096' 
+                }, {
+                    gt: 1,
+                    lte: 2,
+                    color: '#096'
+                }, {
+                    gt: 2,
+                    lte: 3,
+                    color: '#ff9933'
+                }, {
+                    gt: 3,
+                    lte: 4,
+                    color: '#ff9933'
+                }, {
+                    gt: 4,
+                    lte: 5,
+                    color: '#660099'
+                }, {
+                    gt: 5,
+                    color: '#660099'
+                }]
+            }
+    
+    let map = [
+        'NORAMAL',
+        'SHORT_BOTTOM',
+        'SHORT_TOP',
+        'MEDIUM_BOTTOM',
+        'MEDIUM_TOP',
+        'LONG_BOTTOM',
+        'LONG_TOP'
+    ]
+    function parseData(arry, _opener){
+        function defaultOpener(value, index) {
+            return [
+                value
+            ]
+        }
+        if(_opener == undefined) _opener = defaultOpener;
+        return arry.map((v,k) =>{
+            let now = new Date(index_date[k].replace(/(20\d{2})(\d{2})(\d{2})/,'$1-$2-$3'));
+            let vals  = [[now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'),]
+                        .concat(_opener(v, k))
+            return {
+                name: now.toString(),
+                value: vals
+            }
+        })
+        
+    }
+    function draw () {
+        var myChart = echarts.init(document.getElementById('main'));
+        let rsi_state = parseData(rsiState, (v,i)=>{
+            return [
+                price_rawdata[i],
+                v.polar_state,
+                v.polar_state_rank,
+            ]
+        })
+        let rsi_unacross = parseData(rsiState, (v,i)=>{
+            return [
+                price_rawdata[i],
+                v.across,
+            ]
+        })
+        let peek = parseData(rsiState, (v,i)=>{
+            return [
+                price_rawdata[i],
+                v.move,
+            ]
+        })
+        let price_data = parseData(price_rawdata)
+        let data1 = parseData(rsi6)
+        let data2 = parseData(rsi12)
+        let data3 = parseData(rsi24)
+
+        option = {
+            legend: {
+                top: 20,
+                data:['state','unacross','peek']
+            },
+            title: {
+                text: 'RSI'
+            },
+            tooltip: {
+                trigger: 'axis',
+                formatter:(param)=>{
+                    
+                    let state = map[param[0].data.value[2]]
+                    let rank = param[0].data.value[3]
+                    return `state : ${state!=null?state:""} ${rank!=null?rank:""}<br /> RSI1: ${param[CHANGEABLE - disabled].data.value[1]} <br /> RSI2: ${param[CHANGEABLE - disabled + 1].data.value[1]}<br />RSI3: ${param[CHANGEABLE - disabled + 2].data.value[1]}`
+                }
+            },
+            xAxis: {
+                type: 'time',
+                splitLine: {
+                    show: false
+                }
+            },
+            yAxis: [{
+                type: 'value',
+                
+                <!-- boundaryGap: [0, '100%'], -->
+                splitLine: {
+                    show: false
+                }
+            },{
+                type: 'value',
+                max: 200,
+                <!-- boundaryGap: [0, '100%'], -->
+                splitLine: {
+                    show: false
+                }
+            }],
+            series: [{
+                name: 'state',
+                type: 'scatter',
+                <!-- showSymbol: false, -->
+                data: rsi_state
+            },{
+                name: 'unacross',
+                type: 'scatter',
+                <!-- showSymbol: false, -->
+                data: rsi_unacross
+            },{
+                name: 'peek',
+                type: 'scatter',
+                <!-- showSymbol: false, -->
+                data: peek
+            },{
+                name: 'RSI6',
+                type: 'line',
+                showSymbol: false,
+                visualMap: false,
+                yAxisIndex:1,
+                color: '#eee',
+                data: data1
+            },{
+                name: 'RSI12',
+                type: 'line',
+                color: '#eee',
+                yAxisIndex:1,
+                showSymbol: false,
+                visualMap: false,
+                data: data2
+            },{
+                name: 'RSI24',
+                type: 'line',
+                color: '#eee',
+                yAxisIndex:1,
+                showSymbol: false,
+                visualMap: false,
+                data: data3
+            },{
+                name: 'price',
+                type: 'line',
+                color: '#eee',
+                yAxisIndex:0,
+                showSymbol: false,
+                visualMap: false,
+                data: price_data
+            }
+            
+            
+            ],
+            visualMap: visualMap,
+            toolbox: {
+                left: 'center',
+                feature: {
+                    dataZoom: {
+                        yAxisIndex: 'none'
+                    },
+                    restore: {},
+                    saveAsImage: {}
+                }
+            },
+            dataZoom: [
+            {
+                <!-- type: 'slider', -->
+                <!-- xAxisIndex: 0, -->
+                startValue: '2017-11-10',	
+                <!-- filterMode: 'empty' -->
+            },{
+            type: 'inside'
+            }
+        ],
+        };
+        myChart.setOption(option);
+        myChart.on('legendselectchanged', function (params) {
+            let _disabled  = 0;
+            let name = ''
+            for(let key in params.selected) {
+                log(key)
+                if( params.selected[key]== false)
+                    _disabled++
+                else
+                    name = key
+            }
+            disabled = _disabled
+            if(name !== '') {
+                visualMap.pieces = pieces_map[name];
+                myChart.setOption(option);
+            }            
+            
+        });
+    }
+    </script>
+</body>
+</html>
