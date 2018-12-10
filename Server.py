@@ -80,9 +80,13 @@ def date_price():
     res.headers['Access-Control-Allow-Origin'] = '*'
     return res
 
-@app.route('/price/shake')
-def price_shake():
-    shake_states = price_calc.calc_shake()
+@app.route('/price/shake/<term>')
+def price_shake(term):
+    if term == None:
+        shake_states = price_calc.calc_shake()
+    else:
+        shake_states =price_calc.calc_shake(int(term))
+
     data =  shake_states
     jsonfy = json.dumps(data, default=lambda obj: obj.__dict__)
     res = Response(jsonfy, mimetype='application/json')

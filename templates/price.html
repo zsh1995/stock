@@ -5,7 +5,7 @@
     <!-- 引入 ECharts 文件 -->
     <script type="text/javascript" src="https://cdn.bootcss.com/echarts/4.2.0-rc.2/echarts-en.js"></script>
     <script type="text/javascript" src="/static/visualmap-setting.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
 
 </head>
 <body>
@@ -14,8 +14,8 @@
     let _color = "#fff"
     let REMOTEHOST = 'http://192.168.8.99:8388'
     let LOCALHOST = 'http://127.0.0.1:8888'
-    let localhost = LOCALHOST
-    let host = LOCALHOST
+    let localhost = ''
+    let host = ''
     var upColor = '#ec0000';
     var upBorderColor = '#8A0000';
     var downColor = '#00da3c';
@@ -283,10 +283,12 @@
 
 
     async function init() {
-        let prices, rsiBacktrendRawdata_, priceShakes
+        let prices, rsiBacktrendRawdata_, priceShakes;
+        let term = /^\S+#(\d+)$/.exec(document.URL);
+        term = term==null?'24':term[1];
         [prices, rsiBacktrendRawdata_, priceShakes] = await Promise.all([axios.get(`${localhost}/price`).then((res)=> res.data),
                     axios.get(`${localhost}/rsi_state`).then((res)=> res.data),
-                    axios.get(`${localhost}/price/shake`).then((res)=> res.data)])
+                    axios.get(`${localhost}/price/shake/${term}`).then((res)=> res.data)])
 
         index_date = prices.date
         prices = prices.price

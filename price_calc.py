@@ -19,7 +19,7 @@ def loal_data():
         _history_data = tushareDownload.get_share_data()
     return _history_data
 
-def calc_shake():
+def calc_shake(term = 24):
     data = loal_data()
     date = data['trade_date']
     list = []
@@ -41,7 +41,6 @@ def calc_shake():
         sum_hl = sum_hl + state.hlrate
         sum_oc = sum_oc + state.ocrate
         sum_shake =  sum_shake + state.rate
-        term = 24
         if i >= term:
             # 移除
             sum_hl = sum_hl - list[i - term].hlrate
