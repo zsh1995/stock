@@ -1,6 +1,7 @@
 import tushareDownload
 
-_history_data = None
+_history_data_daily = None
+_history_data_weekly = None
 
 class price_state:
     def __init__(self):
@@ -13,14 +14,21 @@ class price_state:
         self.averange24sh = 0
         self.date = ""
 
-def loal_data():
-    global _history_data
-    if _history_data is None:
-        _history_data = tushareDownload.get_share_data()
-    return _history_data
+def loal_data(freq = 'D'):
+    global _history_data_daily
+    global _history_data_weekly
+    if freq == 'D':
+        if _history_data_daily is None:
+            _history_data_daily = tushareDownload.get_share_data()
+        return _history_data_daily
+    elif freq == 'W':
+        if _history_data_weekly is None:
+            _history_data_weekly = tushareDownload.get_share_data(freq='W')
+        return _history_data_weekly
 
-def calc_shake(term = 24):
-    data = loal_data()
+
+def calc_shake(term = 24, freq = 'D'):
+    data = loal_data(freq)
     date = data['trade_date']
     list = []
     pre_min =  0

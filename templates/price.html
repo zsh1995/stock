@@ -284,11 +284,12 @@
 
     async function init() {
         let prices, rsiBacktrendRawdata_, priceShakes;
-        let term = /^\S+#(\d+)$/.exec(document.URL);
-        term = term==null?'24':term[1];
-        [prices, rsiBacktrendRawdata_, priceShakes] = await Promise.all([axios.get(`${localhost}/price`).then((res)=> res.data),
+        let res = /^\S+#(\d+)&(\S+)$/.exec(document.URL);
+        let term = res == null?'24':res[1];
+        let freq = res == null?'D':res[2];
+        [prices, rsiBacktrendRawdata_, priceShakes] = await Promise.all([axios.get(`${localhost}/price/${freq}`).then((res)=> res.data),
                     axios.get(`${localhost}/rsi_state`).then((res)=> res.data),
-                    axios.get(`${localhost}/price/shake/${term}`).then((res)=> res.data)])
+                    axios.get(`${localhost}/price/shake/${term}/${freq}`).then((res)=> res.data)])
 
         index_date = prices.date
         prices = prices.price
@@ -300,13 +301,15 @@
         echart.drawPrice(parseData(prices.open, (v, k)=>{ return [
             prices.open[k],prices.close[k], prices.high[k], prices.low[k]
         ]}))
-        echart.drawRSIback(parseData(rsiBacktrendRawdata_, (v, k) => {
+        if(freq === 'D') {
+            echart.drawRSIback(parseData(rsiBacktrendRawdata_, (v, k) => {
             return [
                 prices.close[k],
                 v.back_trend,
             ]
         }))
         echart.drawRSIData(parseData(rsi1))
+        }
         echart.drawPriceShake(parseData(priceShakes,(v,k)=>{
             return [
                 v.rate

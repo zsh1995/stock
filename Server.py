@@ -62,9 +62,9 @@ def rsi_state():
     res =  Response(jsonfy, mimetype='application/json')
     res.headers['Access-Control-Allow-Origin'] = '*'
     return res
-@app.route('/price')
-def date_price():
-    history = price_calc.loal_data()
+@app.route('/price/<freq>')
+def date_price(freq):
+    history = price_calc.loal_data(freq)
     data = {
         "price": {
             "open": history["open"].tolist(),
@@ -80,13 +80,12 @@ def date_price():
     res.headers['Access-Control-Allow-Origin'] = '*'
     return res
 
-@app.route('/price/shake/<term>')
-def price_shake(term):
+@app.route('/price/shake/<term>/<freq>')
+def price_shake(term, freq):
     if term == None:
-        shake_states = price_calc.calc_shake()
+        shake_states = price_calc.calc_shake(freq = freq)
     else:
-        shake_states =price_calc.calc_shake(int(term))
-
+        shake_states =price_calc.calc_shake(int(term), freq = freq)
     data =  shake_states
     jsonfy = json.dumps(data, default=lambda obj: obj.__dict__)
     res = Response(jsonfy, mimetype='application/json')
