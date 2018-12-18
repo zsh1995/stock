@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import talib
 import tushare as ts
 import matplotlib.pyplot as plt
@@ -6,7 +8,6 @@ from PriorityQueue import PriorityQueue
 import tushareDownload
 import  scipy.signal as sgn
 
-_df = None
 
 class RSISate:
     '''
@@ -43,9 +44,7 @@ class RSISate:
     def __str__(self):
         return str(self.polar_state) + " " + str(self.polar_state_rank)
 def loal_data():
-    global _df
-    if _df is None:
-        _df = tushareDownload.get_share_data()
+    _df = tushareDownload.get_share_data(end_data= datetime.today().strftime("%Y-%m-%d"))
     return _df
 '''
 获取历史开盘和收盘价

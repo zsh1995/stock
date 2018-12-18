@@ -35,8 +35,6 @@ def macdindex():
 
 
 
-
-
 @app.route('/hello')
 def hello_world():
     return 'Hello World!'
@@ -62,15 +60,16 @@ def rsi_state():
     res =  Response(jsonfy, mimetype='application/json')
     res.headers['Access-Control-Allow-Origin'] = '*'
     return res
-@app.route('/price')
-def date_price():
-    history = price_calc.loal_data()
+@app.route('/price/<freq>')
+def date_price(freq):
+    history = price_calc.loal_data(freq=freq)
     data = {
         "price": {
             "open": history["open"].tolist(),
             "close": history["close"].tolist(),
             "high": history['high'].tolist(),
-            "low": history['low'].tolist()
+            "low": history['low'].tolist(),
+            "val": history['vol'].tolist()
         },
         "date": history["trade_date"].tolist()
 
@@ -79,14 +78,22 @@ def date_price():
     res = Response(jsonfy, mimetype='application/json')
     res.headers['Access-Control-Allow-Origin'] = '*'
     return res
+@app.route('/date/<date_from>/<to>')
+def get_date(date_from, to):
+    data = {
+        'date': price_calc.get_trade_date(date_from, to)
+    }
+    jsonfy = json.dumps(data, default=lambda obj: obj.__dict__)
+    res = Response(jsonfy, mimetype='application/json')
+    res.headers['Access-Control-Allow-Origin'] = '*'
+    return res
 
-@app.route('/price/shake/<term>')
-def price_shake(term):
+@app.route('/price/shake/<term>/<freq>')
+def price_shake(term, freq):
     if term == None:
-        shake_states = price_calc.calc_shake()
+        shake_states = price_calc.calc_shake(freq = freq)
     else:
-        shake_states =price_calc.calc_shake(int(term))
-
+        shake_states =price_calc.calc_shake(int(term), freq = freq)
     data =  shake_states
     jsonfy = json.dumps(data, default=lambda obj: obj.__dict__)
     res = Response(jsonfy, mimetype='application/json')
