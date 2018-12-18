@@ -361,8 +361,7 @@
             ]
         }
         function defaultindex(v,k) {
-            let date = new Date(trade_date[k].replace(/(20\d{2})(\d{2})(\d{2})/,'$1-$2-$3'));
-            return [date.getFullYear(), date.getMonth() + 1, date.getDate()].join('-');
+            return trade_date[k];
         }
         if(!_opener) _opener = defaultOpener;
         if(!_indexopener) _indexopener = defaultindex;
@@ -397,18 +396,15 @@
         prices = prices.price
         rsi1 = rsiBacktrendRawdata_.rsi_data.rsi1
         rsiBacktrendRawdata_= rsiBacktrendRawdata_.rsi_state
-        trade_date = date.date
+        trade_date = date.date.map((v, k) => v.replace(/(20\d{2})(\d{2})(\d{2})/,'$1-$2-$3'))
         function ownDateIndex(v, k) {
-            return new Date(v.date.replace(/(20\d{2})(\d{2})(\d{2})/,'$1-$2-$3'))
+            return trade_date[k]
         }
 
 
 
         let echart = eo == null ? new EchartObject('main') : eo;
-        echart.setXAsix(trade_date.map((v,k)=>{
-             let date = new Date(trade_date[k].replace(/(20\d{2})(\d{2})(\d{2})/,'$1-$2-$3'))
-             return [date.getFullYear(), date.getMonth() + 1, date.getDate()].join("-")
-        }))
+        echart.setXAsix(trade_date)
         echart.drawPrice(parseData(prices.open, (v, k)=>{ return [
             prices.open[k],prices.close[k], prices.high[k], prices.low[k]
         ]},(v, k)=> null))
