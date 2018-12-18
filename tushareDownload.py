@@ -2,10 +2,10 @@ from sqlalchemy import create_engine
 import tushare as ts
 from datetime import *
 import pandas as pd
+from functools import lru_cache
 
 api = ts.pro_api('c47e14c7e2d18461135f48996657b13a0c3702820c62c18aa383d49b')
 # engine = create_engine('mysql+mysqlconnector://root:123456@192.168.8.226/tushare?charset=utf8')
-
 
 # today = datetime.today()
 #today = datetime.strptime("2008-01-01", "%Y-%m-%d")
@@ -24,7 +24,9 @@ def toString(date):
     #追加数据到现有表
     #df.to_sql('sh000001',engine,if_exists='append')
     #print(df['close'][0])
-def get_share_data(end_data = datetime.strptime("2018-12-31", "%Y-%m-%d"), freq = 'D') :
+@lru_cache(maxsize=10)
+def get_share_data(end_data = "2018-12-31", freq = 'D') :
+    end_data = datetime.strptime(end_data, "%Y-%m-%d")
     start_date_term = datetime.strptime("2005-01-01", "%Y-%m-%d")
     end_date_term = datetime.strptime("2005-12-31", "%Y-%m-%d")
     pre_data = None

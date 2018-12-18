@@ -50,7 +50,7 @@
             }],
                 visualMap: visualMap,
                 xAxis: [{
-                    type: 'time',
+                    type: 'category',
                     splitLine: {
                         show: false
                     },
@@ -65,6 +65,12 @@
                     splitLine: {show: false},
                     axisLabel: {show: false},
                 }],
+                axisPointer: {
+                    link: {xAxisIndex: 'all'},
+                    label: {
+                        backgroundColor: '#777'
+                    }
+                },
                 yAxis: [{
                     type: 'value',
                     gridIndex:0,
@@ -140,15 +146,20 @@
                 myChart.setOption(option);
             }
 
-    }function parseData(arry, _opener){
+    }
+    function parseData(arry, _opener,_indexopener){
         function defaultOpener(value, index) {
             return [
                 value
             ]
         }
+        function defaultindex(v,k) {
+            return new Date(index_date[k].replace(/(20\d{2})(\d{2})(\d{2})/,'$1-$2-$3'))
+        }
         if(_opener == undefined) _opener = defaultOpener;
+        if(!_indexopener) _indexopener = defaultindex;
         return arry.map((v,k) =>{
-            let now = new Date(index_date[k].replace(/(20\d{2})(\d{2})(\d{2})/,'$1-$2-$3'));
+            let now = _indexopener(v,k);
             let vals  = [[now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'),]
                         .concat(_opener(v, k))
             return {

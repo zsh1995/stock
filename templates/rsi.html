@@ -32,7 +32,7 @@
         rsi24 = httpData.rsi_data.rsi3
         index_date = httpData.rsi_data.date
         rsiState = httpData.rsi_state
-        return axios.get(`${localhost}/price`)
+        return axios.get(`${localhost}/price/D`)
       })
       .then(function(res){
         price_rawdata = res.data.price.close

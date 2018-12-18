@@ -1,12 +1,11 @@
+import datetime
+
 import tushareDownload
 import talib
 import numpy as np
-_history_data = None
 
 def load_data():
-    global _history_data
-    if _history_data is None:
-        _history_data = tushareDownload.get_share_data()
+    _history_data = tushareDownload.get_share_data(end_data=datetime.datetime.today().strftime("%Y-%m-%d"))
     return _history_data
 
 def calc_macd():

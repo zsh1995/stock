@@ -1,7 +1,7 @@
+import datetime
+
 import tushareDownload
 
-_history_data_daily = None
-_history_data_weekly = None
 
 class price_state:
     def __init__(self):
@@ -12,23 +12,22 @@ class price_state:
         self.averange24hl = 0
         self.averange24oc = 0
         self.averange24sh = 0
+        self.corate = 0
         self.date = ""
 
-def loal_data(freq = 'D'):
-    global _history_data_daily
-    global _history_data_weekly
+def loal_data(end_date = datetime.datetime.today(),freq = 'D'):
     if freq == 'D':
-        if _history_data_daily is None:
-            _history_data_daily = tushareDownload.get_share_data()
+        _history_data_daily = tushareDownload.get_share_data(end_data=end_date.strftime("%Y-%m-%d"))
         return _history_data_daily
     elif freq == 'W':
-        if _history_data_weekly is None:
-            _history_data_weekly = tushareDownload.get_share_data(freq='W')
+        _history_data_weekly = tushareDownload.get_share_data(end_data = end_date.strftime("%Y-%m-%d"), freq='W')
         return _history_data_weekly
 
+def get_trade_date(from_date , to):
+    return loal_data(end_date=datetime.datetime.strptime(to, "%Y-%m-%d"))['trade_date'].tolist()
 
 def calc_shake(term = 24, freq = 'D'):
-    data = loal_data(freq)
+    data = loal_data(freq = freq)
     date = data['trade_date']
     list = []
     pre_min =  0
@@ -45,6 +44,8 @@ def calc_shake(term = 24, freq = 'D'):
         state.ocrate = 1000 * round(abs(open - close) / open, 4)
         state.rate = int(100 * abs(open - close) / (high - low))
         state.hlrate = 1000 * round((high - low) / open, 4)
+        pclose = open if i == 0 else data['close'].iloc[i-1]
+        state.corate = 1000 * round(abs(pclose - open) / pclose, 4)
         # 加入当天
         sum_hl = sum_hl + state.hlrate
         sum_oc = sum_oc + state.ocrate
