@@ -398,7 +398,7 @@
         rsiBacktrendRawdata_= rsiBacktrendRawdata_.rsi_state
         trade_date = date.date.map((v, k) => v.replace(/(20\d{2})(\d{2})(\d{2})/,'$1-$2-$3'))
         function ownDateIndex(v, k) {
-            return trade_date[k]
+            return v.date.replace(/(20\d{2})(\d{2})(\d{2})/,'$1-$2-$3')
         }
 
 
