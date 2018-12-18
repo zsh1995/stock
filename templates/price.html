@@ -48,7 +48,7 @@
     <!--     -->
     function EchartObject(name){
         let dom = document.getElementById(name);
-        dom.style.height = parseInt(window.innerHeight * 0.8) + 'px';
+        dom.style.height = parseInt(window.innerHeight * 0.9) + 'px';
         var myChart = echarts.init(document.getElementById(name));
         var option = {
             legend: {
@@ -71,12 +71,12 @@
                 {
                     left: '10%',
                     right: '8%',
-                    height: '80%'
+                    height: '70%'
                 },
                 {
                     left: '10%',
                     right: '8%',
-                    top: '93%',
+                    top: '83%',
                     height: '7%'
                 }],
             xAxis: [
