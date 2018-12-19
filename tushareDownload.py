@@ -2,11 +2,12 @@ from sqlalchemy import create_engine
 import tushare as ts
 from datetime import *
 import pandas as pd
+import threading
 from functools import lru_cache
 
 api = ts.pro_api('c47e14c7e2d18461135f48996657b13a0c3702820c62c18aa383d49b')
 # engine = create_engine('mysql+mysqlconnector://root:123456@192.168.8.226/tushare?charset=utf8')
-
+R = threading.Lock()
 # today = datetime.today()
 #today = datetime.strptime("2008-01-01", "%Y-%m-%d")
 def toString(date):
@@ -24,8 +25,20 @@ def toString(date):
     #追加数据到现有表
     #df.to_sql('sh000001',engine,if_exists='append')
     #print(df['close'][0])
-@lru_cache(maxsize=10)
 def get_share_data(end_data = "2018-12-31", freq = 'D') :
+    global test
+    needLock = test != end_data
+    if needLock:
+        R.acquire()
+    df = _get_share_data(end_data, freq)
+    if needLock:
+        R.release()
+    return df
+
+test = ""
+@lru_cache(maxsize=20)
+def _get_share_data(end_data = "2018-12-31", freq = 'D') :
+    global test
     end_data = datetime.strptime(end_data, "%Y-%m-%d")
     start_date_term = datetime.strptime("2005-01-01", "%Y-%m-%d")
     end_date_term = datetime.strptime("2005-12-31", "%Y-%m-%d")
@@ -43,6 +56,7 @@ def get_share_data(end_data = "2018-12-31", freq = 'D') :
         pre_year = start_date_term.year
         start_date_term = start_date_term.replace(year=pre_year + 1)
         end_date_term = end_date_term.replace(year=pre_year + 1)
+    test = end_data
     return pre_data
 
 def general_data(start_date, end_date, asset, freq, ts_code):
@@ -67,4 +81,6 @@ def general_data(start_date, end_date, asset, freq, ts_code):
         # rdf['trade_date'] = rdf['trade_date'].apply(lambda x: datetime.strftime(x,"%Y-%m-%d"))
         return rdf
     else :
+        if df is None :
+            raise Exception('date from %s -> %s is null'% (start_date, end_date))
         return df[::][::-1]
