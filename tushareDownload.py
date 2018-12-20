@@ -28,11 +28,13 @@ def toString(date):
 def get_share_data(end_data = "2018-12-31", freq = 'D') :
     global test
     needLock = test != end_data
-    if needLock:
-        R.acquire()
-    df = _get_share_data(end_data, freq)
-    if needLock:
-        R.release()
+    try:
+        if needLock:
+            R.acquire()
+        df = _get_share_data(end_data, freq)
+    finally:
+        if needLock:
+            R.release()
     return df
 
 test = ""
