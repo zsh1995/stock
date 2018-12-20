@@ -12,6 +12,7 @@ class price_state:
         self.averange24hl = 0
         self.averange24oc = 0
         self.averange24sh = 0
+        self.averange24co = 0
         self.corate = 0
         self.date = ""
 
@@ -33,6 +34,7 @@ def calc_shake(term = 24, freq = 'D'):
     pre_min =  0
     sum_hl = 0
     sum_oc = 0
+    sum_co = 0
     sum_shake = 0
     for i in range(len(date)):
         state = price_state()
@@ -49,17 +51,20 @@ def calc_shake(term = 24, freq = 'D'):
         # 加入当天
         sum_hl = sum_hl + state.hlrate
         sum_oc = sum_oc + state.ocrate
+        sum_co = sum_co + state.corate
         sum_shake =  sum_shake + state.rate
         if i >= term:
             # 移除
             sum_hl = sum_hl - list[i - term].hlrate
             sum_oc = sum_oc - list[i - term].ocrate
             sum_shake = sum_shake - list[i - term].rate
+            sum_co = sum_co - list[i - term].corate
 
             # 计算均值
             state.averange24_hl = sum_hl / term
             state.averange24_oc = sum_oc / term
             state.averange24_sh = sum_shake / term
+            state.averange24co = sum_co / term
 
         if state.rate < 50:
             state.shake = 1

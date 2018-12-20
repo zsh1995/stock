@@ -183,21 +183,26 @@
 //                visualMap: false
             })
         }
-        this.drawPriceShake = (priceShake, showSymbol = false, step= false) =>{
-            option.legend.data.push('price_shake_rate')
+        this.drawPriceShake = (priceShake, showSymbol = false, weekly= false) =>{
+            let name = 'price_shake_rate'
+            if(weekly)  name += '_weekly'
+            option.legend.data.push(name)
             option.series.push({
-                name: 'price_shake_rate',
+                name: name,
                 type: 'line',
-                step: step,
+                step: weekly,
                 yAxisIndex:1,
                 color: '#eee',
                 showSymbol: showSymbol,
                 data: priceShake,
             })
         }
-        this.drawPriceRate = (priceShakeRate, showSymbol = false)=>{
+
+        this.drawPriceRate = (priceShakeRate, showSymbol = false, weekly = false)=>{
+            let name = 'price_shake_warning'
+            if(weekly)  name += '_weekly'
             option.series.push({
-                name: 'price_shake_warning',
+                name: name,
                 type: 'scatter',
                 yAxisIndex:1,
                 <!-- showSymbol: false, -->
@@ -205,97 +210,98 @@
 
             })
             option.visualMap.seriesIndex.push(option.series.length - 1)
-            option.legend.data.push('price_shake_warning')
+            option.legend.data.push(name)
 
         }
-        this.drawOCPriceShakeRate = (priceshake, step = false) => {
-            option.legend.data.push('price_shake_rate(开/收)')
+        this.drawOCPriceShakeRate = (priceshake, weekly = false) => {
+            let name = 'price_shake_rate(开/收)'
+            if(weekly)  name += '_weekly'
+            option.legend.data.push(name)
             option.series.push({
-                name: 'price_shake_rate(开/收)',
+                name: name,
                 type: 'line',
                 yAxisIndex:1,
                 color: '#3af331',
-                step: step,
+                step: weekly,
                 showSymbol: false,
                 data: priceshake
             })
         }
-        this.drawHLPriceShakeRate = (priceshake, step = false) =>{
-            option.legend.data.push('price_shake_rate(高/低)')
+        this.drawHLPriceShakeRate = (priceshake, weekly = false) =>{
+            let name = 'price_shake_rate(高/低)'
+            if(weekly)  name += '_weekly'
+            option.legend.data.push(name)
             option.series.push({
-                name: 'price_shake_rate(高/低)',
+                name: name,
                 type: 'line',
                 yAxisIndex:1,
                 color: '#feaf00',
                 showSymbol: false,
-                step: step,
+                step: weekly,
                 data: priceshake
             })
         }
-        this.drawHLAverage = (p, step = false) => {
-            option.legend.data.push('price_shake均线(高/低)')
+        this.drawHLAverage = (p, weekly = false) => {
+            let name = 'price_shake均线(高/低)'
+            if(weekly)  name += '_weekly'
+            option.legend.data.push(name)
             option.series.push({
-                name: 'price_shake均线(高/低)',
-                type: 'line',
-                yAxisIndex:1,
-                color: '#5100ff',
-                showSymbol: false,
-                step: step,
-                data: p
-            })
-        }
-        this.drawHLAverage = (p, step = false) => {
-            option.legend.data.push('price_shake均线(高/低)')
-            option.series.push({
-                name: 'price_shake均线(高/低)',
+                name: name,
                 type: 'line',
                 yAxisIndex:1,
                 color: '#fff220',
                 showSymbol: false,
-                step: step,
+                step: weekly,
                 data: p
             })
         }
-        this.drawOCAverage = (p ,step = false) => {
-            option.legend.data.push('price_shake均线(开/收)')
+        this.drawOCAverage = (p ,weekly = false) => {
+            let name = 'price_shake均线(开/收)'
+            if(weekly)  name += '_weekly'
+            option.legend.data.push(name)
             option.series.push({
-                name: 'price_shake均线(开/收)',
+                name: name,
                 type: 'line',
                 yAxisIndex:1,
-                step: step,
+                step: weekly,
                 color: '#ffb227',
                 showSymbol: false,
                 data: p
             })
         }
-        this.drawSHAverage = (p, step = false) => {
-            option.legend.data.push('price_shake均线(震荡)')
+        this.drawSHAverage = (p, weekly = false) => {
+            let name = 'price_shake均线(震荡)'
+            if(weekly)  name += '_weekly'
+            option.legend.data.push(name)
             option.series.push({
-                name: 'price_shake均线(震荡)',
+                name: name,
                 type: 'line',
                 yAxisIndex:1,
-                step: step,
+                step: weekly,
                 color: '#ff3845',
                 showSymbol: false,
                 data: p
             })
         }
-        this.drwaDelta = (delta, step = false)=>{
-            option.legend.data.push('(高/低)-(开/收)')
+        this.drwaDelta = (delta, weekly = false)=>{
+            let name = '(高/低)-(开/收)'
+            if(weekly)  name += '_weekly'
+            option.legend.data.push(name)
             option.series.push({
-                name: '(高/低)-(开/收)',
+                name: name,
                 type: 'line',
                 yAxisIndex:1,
                 color: '#33aadd',
                 showSymbol: false,
-                step: step,
+                step: weekly,
                 data: delta
             })
         }
         this.drawcoDelta = (delta) =>{
-            option.legend.data.push('昨收 - 今开')
+            let name = '昨收 - 今开'
+            option.legend.data.push(name)
             option.series.push({
-                name: '昨收 - 今开',
+                name: name,
                 type: 'line',
                 yAxisIndex:1,
                 color: '#333aee',
@@ -334,6 +340,7 @@
 
         }
         this.drawVal = (data) =>_drawBar("成交量", data, {xAxis:1, yAxis : 2,showInLegend : true});
+        this.drawCOAverage = (data) => _drawLine("开盘-收盘均线", data, {});
         this.setXAsix = (date) => {
             option.xAxis[0].data = date;
             option.xAxis[1].data = date;
@@ -378,17 +385,18 @@
     var trade_date
     async function init() {
         // let prices, rsiBacktrendRawdata_, priceShakes;
-        let res = /^\S+#(?<term>\d+)(?:&(?<freq>\S+))?(?:&(?<to>\d|\-+))?$/.exec(document.URL);
+        let res = /^\S+#(?<term>\d+)?(?<term_weekly>\d+)?(?:&(?<to>\d|\-+))?$/.exec(document.URL);
         let term = res == null || !res.groups["term"]?'24':res.groups["term"];
-        let freq = res == null || !res.groups["freq"]?'D':res.groups["freq"];
-        let today = new Date()
+        let term_weekly = res == null || !res.groups["term_weekly"]?'24':res.groups["term_weekly"];
+        let today = new Date();
         let to = res == null || !res.groups["to"]?
             `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`:
             res.groups["to"];
 
-        let [prices, rsiBacktrendRawdata_, priceShakes, date] = await Promise.all([axios.get(`${localhost}/price/D`).then((res)=> res.data),
+        let [prices, rsiBacktrendRawdata_, priceShakes, priceShakes_weekly,date] = await Promise.all([axios.get(`${localhost}/price/D`).then((res)=> res.data),
                     axios.get(`${localhost}/rsi_state`).then((res)=> res.data),
-                    axios.get(`${localhost}/price/shake/${term}/${freq}`).then((res)=> res.data),
+                    axios.get(`${localhost}/price/shake/${term}/D`).then((res)=> res.data),
+                    axios.get(`${localhost}/price/shake/${term_weekly}/W`).then((res)=> res.data),
                     axios.get(`${localhost}/date/nonsense/${to}`).then((res)=> res.data)
         ])
 
@@ -408,7 +416,7 @@
         echart.drawPrice(parseData(prices.open, (v, k)=>{ return [
             prices.open[k],prices.close[k], prices.high[k], prices.low[k]
         ]},(v, k)=> null))
-        if(freq === 'D') {
+        if(/* freq === 'D' */ true) {
             echart.drawRSIback(parseData(rsiBacktrendRawdata_, (v, k) => {
             return [
                 prices.close[k],
@@ -421,48 +429,95 @@
                     v.corate
                 ]
             }))
+            echart.drawCOAverage(parseData(priceShakes, (v, k)=> {
+            return [
+                v.average24_co
+            ]
+        },))
         }
         echart.drawPriceShake(parseData(priceShakes,(v,k)=>{
             return [
                 v.rate
             ]
-        },ownDateIndex), false,step = (freq === 'W'))
+        },ownDateIndex), false,true)
+        echart.drawPriceShake(parseData(priceShakes,(v,k)=>{
+            return [
+                v.rate
+            ]
+        }), false,false)
         echart.drawPriceRate(parseData(priceShakes,(v,k)=>{
             return [
                 v.rate,
                 v.shake
             ]
-        },ownDateIndex), step = freq === 'W')
+        },ownDateIndex), true)
+        echart.drawPriceRate(parseData(priceShakes,(v,k)=>{
+            return [
+                v.rate,
+                v.shake
+            ]
+        }))
         echart.drawOCPriceShakeRate(parseData(priceShakes, (v, k)=>{
             return [
                 v.ocrate
             ]
-        },ownDateIndex), step = freq === 'W')
+        },ownDateIndex), true)
+        echart.drawOCPriceShakeRate(parseData(priceShakes, (v, k)=>{
+            return [
+                v.ocrate
+            ]
+        }), false)
         echart.drawHLPriceShakeRate(parseData(priceShakes, (v, k)=>{
             return [
                 v.hlrate
             ]
-        },ownDateIndex), step = freq === 'W')
+        },ownDateIndex), true)
+        echart.drawHLPriceShakeRate(parseData(priceShakes, (v, k)=>{
+            return [
+                v.hlrate
+            ]
+        }), false)
         echart.drawOCAverage(parseData(priceShakes, (v, k)=>{
             return [
                 v.averange24_oc
             ]
-        },ownDateIndex), step = freq === 'W')
+        },ownDateIndex), true)
+        echart.drawOCAverage(parseData(priceShakes, (v, k)=>{
+            return [
+                v.averange24_oc
+            ]
+        }), false)
         echart.drawHLAverage(parseData(priceShakes, (v, k)=>{
             return [
                 v.averange24_hl
             ]
-        },ownDateIndex), step = freq === 'W')
+        },ownDateIndex), true)
+        echart.drawHLAverage(parseData(priceShakes, (v, k)=>{
+            return [
+                v.averange24_hl
+            ]
+        }), false)
+
         echart.drawSHAverage(parseData(priceShakes, (v, k)=>{
             return [
                 v.averange24_sh
             ]
-        },ownDateIndex), step = freq === 'W')
+        },ownDateIndex), true)
+        echart.drawSHAverage(parseData(priceShakes, (v, k)=>{
+            return [
+                v.averange24_sh
+            ]
+        }), false)
         echart.drwaDelta(parseData(priceShakes,(v, k)=>{
             return [
                 v.averange24_hl - v.averange24_oc
             ]
-        },ownDateIndex), step = freq === 'W')
+        },ownDateIndex), true)
+        echart.drwaDelta(parseData(priceShakes,(v, k)=>{
+            return [
+                v.averange24_hl - v.averange24_oc
+            ]
+        }), false)
         echart.drawVal(parseData(prices.open, (v, k)=>{
             return [
                 prices.val[k]
