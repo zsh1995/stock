@@ -9,10 +9,10 @@ class price_state:
         self.rate = 0 # 震幅百分比 0 - 1
         self.ocrate = 0
         self.hlrate = 0
-        self.averange24hl = 0
-        self.averange24oc = 0
-        self.averange24sh = 0
-        self.averange24co = 0
+        self.averange24_hl = 0
+        self.averange24_oc = 0
+        self.averange24_sh = 0
+        self.averange24_co = 0
         self.corate = 0
         self.date = ""
 
@@ -64,7 +64,7 @@ def calc_shake(term = 24, freq = 'D'):
             state.averange24_hl = sum_hl / term
             state.averange24_oc = sum_oc / term
             state.averange24_sh = sum_shake / term
-            state.averange24co = sum_co / term
+            state.averange24_co = sum_co / term
 
         if state.rate < 50:
             state.shake = 1

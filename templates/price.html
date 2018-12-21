@@ -431,11 +431,11 @@
             }))
             echart.drawCOAverage(parseData(priceShakes, (v, k)=> {
             return [
-                v.average24_co
+                v.averange24_co
             ]
         },))
         }
-        echart.drawPriceShake(parseData(priceShakes,(v,k)=>{
+        echart.drawPriceShake(parseData(priceShakes_weekly,(v,k)=>{
             return [
                 v.rate
             ]
@@ -445,7 +445,7 @@
                 v.rate
             ]
         }), false,false)
-        echart.drawPriceRate(parseData(priceShakes,(v,k)=>{
+        echart.drawPriceRate(parseData(priceShakes_weekly,(v,k)=>{
             return [
                 v.rate,
                 v.shake
@@ -457,7 +457,7 @@
                 v.shake
             ]
         }))
-        echart.drawOCPriceShakeRate(parseData(priceShakes, (v, k)=>{
+        echart.drawOCPriceShakeRate(parseData(priceShakes_weekly, (v, k)=>{
             return [
                 v.ocrate
             ]
@@ -467,7 +467,7 @@
                 v.ocrate
             ]
         }), false)
-        echart.drawHLPriceShakeRate(parseData(priceShakes, (v, k)=>{
+        echart.drawHLPriceShakeRate(parseData(priceShakes_weekly, (v, k)=>{
             return [
                 v.hlrate
             ]
@@ -477,7 +477,7 @@
                 v.hlrate
             ]
         }), false)
-        echart.drawOCAverage(parseData(priceShakes, (v, k)=>{
+        echart.drawOCAverage(parseData(priceShakes_weekly, (v, k)=>{
             return [
                 v.averange24_oc
             ]
@@ -487,7 +487,7 @@
                 v.averange24_oc
             ]
         }), false)
-        echart.drawHLAverage(parseData(priceShakes, (v, k)=>{
+        echart.drawHLAverage(parseData(priceShakes_weekly, (v, k)=>{
             return [
                 v.averange24_hl
             ]
@@ -498,7 +498,7 @@
             ]
         }), false)
 
-        echart.drawSHAverage(parseData(priceShakes, (v, k)=>{
+        echart.drawSHAverage(parseData(priceShakes_weekly, (v, k)=>{
             return [
                 v.averange24_sh
             ]
@@ -508,7 +508,7 @@
                 v.averange24_sh
             ]
         }), false)
-        echart.drwaDelta(parseData(priceShakes,(v, k)=>{
+        echart.drwaDelta(parseData(priceShakes_weekly,(v, k)=>{
             return [
                 v.averange24_hl - v.averange24_oc
             ]
