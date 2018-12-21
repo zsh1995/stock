@@ -385,7 +385,7 @@
     var trade_date
     async function init() {
         // let prices, rsiBacktrendRawdata_, priceShakes;
-        let res = /^\S+#(?<term>\d+)?(?<term_weekly>\d+)?(?:&(?<to>\d|\-+))?$/.exec(document.URL);
+        let res = /^\S+#(?<term>\d+)?(?:&(?<term_weekly>\d))?(?:&(?<to>\d|\-+))?$/.exec(document.URL);
         let term = res == null || !res.groups["term"]?'24':res.groups["term"];
         let term_weekly = res == null || !res.groups["term_weekly"]?'24':res.groups["term_weekly"];
         let today = new Date();
