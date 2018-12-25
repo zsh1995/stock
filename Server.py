@@ -1,3 +1,5 @@
+from time import time
+
 from flask import Flask, jsonify, Response,render_template
 import json
 
@@ -5,6 +7,8 @@ import macd_calc
 import price_calc
 import rsi_calc
 import numpy as py
+from functools import wraps
+
 app = Flask(__name__)
 
 @app.route("/")
@@ -33,7 +37,28 @@ def macdval():
 def macdindex():
     return render_template('macd.html')
 
+def restful(func):
+    @wraps(func)
+    def inner(*args, **kwargs):
+        result = func(*args, **kwargs)
+        jsonfy = json.dumps(result)
+        res = Response(jsonfy, mimetype='application/json')
+        res.headers['Access-Control-Allow-Origin'] = '*'
+        return res
+    return inner
 
+@app.route("/macd/warn_data")
+@restful
+def macd_max_back():
+    prices = macd_calc.load_data()
+    macd, macdsign, macdhist, date = macd_calc.calc_macd()
+    return {
+        'max_back': macd_calc.calc_max_and_back(macdhist, prices['close'].tolist()),
+        'unacross': macd_calc.calc_across(macd, macdsign),
+        'dif_warn': macd_calc.calc_max(macd),
+        'dea_warn': macd_calc.calc_max(macdsign),
+        'dif_dea_cross': macd_calc.cross(macd, macdsign)
+    }
 
 @app.route('/hello')
 def hello_world():

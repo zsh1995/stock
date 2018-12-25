@@ -6,6 +6,7 @@
     <script type="text/javascript" src="https://cdn.bootcss.com/echarts/4.2.0-rc.2/echarts-en.js"></script>
     <script type="text/javascript" src="/static/visualmap-setting.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/static/echart-wrapper.js"></script>
 
 </head>
 <body>
@@ -13,20 +14,16 @@
         <div id="main" style="width: 90%;"></div>
     </div>
     <script type="text/javascript">
-        var index_date
-        let visualMap = {
+        function visualMap(show = true, dim = 1) {
+            return {
                 top: 10,
                 right: 10,
-                show:false,
-                dimension: 1,
+                show:show,
+                dimension: dim,
                 seriesIndex: [],
+            }
         }
-        visualMap.pieces = pieces_map['postive_negative']
-        function EchartObject(name){
-            let dom = document.getElementById(name);
-            dom.style.height = window.innerHeight + 'px';
-            var myChart = echarts.init(dom);
-            var option = {
+        var macd_option = {
                 legend: {
                     top: 20,
                     data:[]
@@ -41,14 +38,20 @@
                 {
                     left: '10%',
                     right: '8%',
-                    height: '50%'
+                    top:"10%",
+                    height: '55%'
                 },{
                 left: '10%',
                 right: '8%',
-                top: '63%',
-                height: '16%'
-            }],
-                visualMap: visualMap,
+                top: '65%',
+                height: '15%'
+                },{
+                    left: '10%',
+                    right: '8%',
+                    top: '83%',
+                    height: '10%'
+                }],
+                visualMap: [ visualMap(true, 2), visualMap(false)],
                 xAxis: [{
                     type: 'category',
                     splitLine: {
@@ -58,6 +61,15 @@
                 },{
                     type: 'category',
                     gridIndex: 1,
+                    scale: true,
+                    boundaryGap : false,
+                    axisLine: {onZero: false},
+                    axisTick: {show: false},
+                    splitLine: {show: false},
+                    axisLabel: {show: false},
+                },{
+                    type: 'category',
+                    gridIndex: 2,
                     scale: true,
                     boundaryGap : false,
                     axisLine: {onZero: false},
@@ -79,9 +91,16 @@
                         show: false
                     }
                 },{
+                    type: 'value',
+                    gridIndex:1,
+                    <!-- boundaryGap: [0, '100%'], -->
+                    splitLine: {
+                        show: false
+                    }
+                },{
                     type:"value",
                     scale: false,
-                    gridIndex: 1,
+                    gridIndex: 2,
                     splitNumber: 2,
                     axisLabel: {show: false},
                     axisLine: {show: false},
@@ -101,79 +120,83 @@
                 },
                 dataZoom: [{
                     show: true,
-                    xAxisIndex: [0, 1],
+                    xAxisIndex: [0, 1, 2],
                     type: 'slider',
                     top: '85%'
                 },{
                     type: 'inside',
-                    xAxisIndex: [0, 1],
+                    xAxisIndex: [0, 1, 2],
                 }
             ],
-            };
-            this.drawDIF = (dif)=>{
-                option.series.push({
-                    name: 'macd_dif',
-                    type: 'line',
-                    showSymbol: false,
-                    data: dif
-                })
+        };
+        function MACDEcharObject(name) {
+            macd_option.visualMap[0].pieces = pieces_map.unacross
+            macd_option.visualMap[1].pieces = pieces_map.postive_negative
+            EchartObject.call(this, name, macd_option)
+            this.drawDIF = (dif) => {
+                this._drawLine("macd_dif", dif, {xAxis : 1, yAxis : 1, color:"#ffb805"})
             }
-            this.drawDEM = (dem)=>{
-                option.series.push({
-                    name: 'macd_dem',
-                    type: 'line',
-                    showSymbol: false,
-                    data: dem
-                })
+            this.drawDEM = (dem) => {
+                this._drawLine("macd_dem", dem, {xAxis : 1, yAxis : 1, color: "#ff4b00"})
             }
             this.drawHist = (hist) => {
-                option.series.push({
-                    name: 'hist',
-                    type: 'bar',
-                    <!-- showSymbol: false, -->
-                    data: hist,
-                    xAxisIndex: 1,
-                    yAxisIndex: 1
+                this._drawBar('macd_hist', hist, {xAxis : 2, yAxis : 2, visualMapIndex : 1 })
+            }
+            this.drawPrice = (price) => {
+                this._drawCandlestick("price", price, {xAxis: 0, yAxis: 0})
+            }
+            this.drawMaxOrBack = (data) => {
+                this._drawScatter("最值与背离", data, {
+                    visualMapIndex: 0,
                 })
-                option.visualMap.seriesIndex.push(option.series.length - 1)
             }
-            this.drawMACD= (dif, dem, hist) => {
-                this.drawDIF(dif)
-                this.drawDEM(dem)
-                this.drawHist(hist)
+            this.drawAcross = (data) => {
+                this._drawScatter("短线长线未交叉", data, {
+                    visualMapIndex: 0,
+                })
             }
-            this.draw = ()=>{
-                myChart.setOption(option);
+            this.drawDIF_DEA = (data) => {
+                this._drawScatter("DIF与DEA新高", data, {
+                    visualMapIndex: 0,
+                })
             }
+            this.drawDIF_DEA_Across = (data) => {
+                this._drawScatter("DIF与DEA交叉", data, {
+                    visualMapIndex: 0,
+                })
+            }
+        }
 
-    }
-    function parseData(arry, _opener,_indexopener){
-        function defaultOpener(value, index) {
-            return [
-                value
-            ]
-        }
-        function defaultindex(v,k) {
-            return new Date(index_date[k].replace(/(20\d{2})(\d{2})(\d{2})/,'$1-$2-$3'))
-        }
-        if(_opener == undefined) _opener = defaultOpener;
-        if(!_indexopener) _indexopener = defaultindex;
-        return arry.map((v,k) =>{
-            let now = _indexopener(v,k);
-            let vals  = [[now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'),]
-                        .concat(_opener(v, k))
-            return {
-                name: now.toString(),
-                value: vals
-            }
-        })
-    }
+
+
+
+
     async function init() {
-        echart = new EchartObject("main")
+        echart = new MACDEcharObject("main")
+        let now = new Date();
+        let [_all, _date, _prices, _macd_warn] = await Promise.all([axios.get('/macd').then(res => res.data),
+            axios.get(`/date/nonsense/${[now.getFullYear(), now.getMonth() + 1, now.getDate()].join('-')}`).then((res)=> res.data.date),
+            axios.get(`/price/D`).then((res) => res.data),
+            axios.get(`/macd/warn_data`).then((res) => res.data),
 
-        let _all = await axios.get('/macd').then(res => res.data)
-        index_date = _all.date
-        echart.drawMACD(parseData(_all.macd), parseData(_all.macdsign), parseData(_all.macdhist))
+        ])
+        const index_date = _date.map((v, k) => v.replace(/(20\d{2})(\d{2})(\d{2})/,'$1-$2-$3'));
+        const parseData = praser(index_date)
+        echart.setXAsix(index_date)
+        echart.drawDIF(parseData(_all.macd));
+        echart.drawDEM(parseData(_all.macdsign));
+        echart.drawHist(parseData(_all.macdhist));
+        echart.drawPrice(parseData(_prices.price.open, (v, k)=> [
+            _prices.price.open[k],_prices.price.close[k], _prices.price.high[k], _prices.price.low[k]
+        ],(v, k)=> null));
+        echart.drawMaxOrBack(parseData(_macd_warn.max_back,
+            (v, k)=> [_prices.price.close[k], v]))
+        echart.drawAcross(parseData(_macd_warn.unacross,
+            (v, k)=> [_prices.price.close[k], v]))
+        echart.drawDIF_DEA(parseData(_macd_warn.dif_warn,
+            (v, k) => [_prices.price.close[k], v]))
+        echart.drawDIF_DEA_Across(parseData(_macd_warn.dif_dea_cross,
+            (v, k) => [_prices.price.close[k], v]))
         echart.draw()
     }
     init().then(()=>{console.log("echart start")})

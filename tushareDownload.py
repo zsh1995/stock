@@ -4,6 +4,7 @@ from datetime import *
 import pandas as pd
 import threading
 from functools import lru_cache
+from flask import current_app
 
 api = ts.pro_api('c47e14c7e2d18461135f48996657b13a0c3702820c62c18aa383d49b')
 # engine = create_engine('mysql+mysqlconnector://root:123456@192.168.8.226/tushare?charset=utf8')
@@ -27,6 +28,7 @@ def toString(date):
     #print(df['close'][0])
 def get_share_data(end_data = "2018-12-31", freq = 'D') :
     global test
+    current_app.logger.debug('test value is :' + test)
     needLock = test != end_data
     try:
         if needLock:

@@ -8,6 +8,10 @@ class PriorityQueue:
 
     def top(self):
         return heappop(self.list)
+    def max(self):
+        return self.list[0]
+    def size(self):
+        return len(self.list)
 
     def push(self, value):
         # if len(self.list) >= self.max_num:
@@ -20,7 +24,9 @@ class PriorityQueue:
         # else:
             heappush(self.list, value)
             return True
-
+    '''
+    find the rank of the item in list, if its rank bigger than max_rank, return the max_rank
+    '''
     def getRank(self, value, max_rank = 0):
         if max_rank == 0 :
             max_rank = len(self.list)
@@ -33,7 +39,9 @@ class PriorityQueue:
                 break
         self.list = tmp
         return rank
-
+    '''
+    remove the item in list whose value equal to value  
+    '''
     def remove(self, value):
         for i in self.list:
             if self.eq(i,value):
