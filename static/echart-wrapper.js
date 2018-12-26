@@ -26,7 +26,7 @@
                     yAxisIndex:yAxis,
                     data: data
                 });
-                if(visualMapIndex) {
+                if(visualMapIndex != null) {
                     option.visualMap[visualMapIndex].seriesIndex.push(option.series.length - 1)
                 }
             }
@@ -121,5 +121,5 @@
                 return vals
             })
         }
-
     }
+
