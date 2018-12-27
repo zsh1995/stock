@@ -15,7 +15,7 @@
                 yAxis = 0,
                 showInLegend = true,
                 visualMapIndex = null,
-            }) {
+            } = {}) {
                 if(showInLegend) {
                     option.legend.data.push(name);
                 }
@@ -37,7 +37,7 @@
                                       step = false,
                                       showSymbol = false,
                                       color = '#333aee',
-                                  }) {
+                                  } = {}) {
                 if(showInLegend) {
                     option.legend.data.push(name);
                 }
@@ -53,7 +53,7 @@
                 });
             }
 
-            this._drawBar = function (name, data, {xAxis = 0,yAxis = 0, showInLegend = true, showSymbol = false, color = '#ee7300', visualMapIndex = null} ) {
+            this._drawBar = function (name, data, {xAxis = 0,yAxis = 0, showInLegend = true, showSymbol = false, color = '#ee7300', visualMapIndex = null} = {}) {
                 if(showInLegend) {
                     option.legend.data.push(name);
                 }
@@ -78,7 +78,7 @@
                                                   colorF = '#00da3c',
                                                   borderColorP = null,
                                                   borderColorF = null,
-                                              }) {
+                                              } = {}) {
                 option.series.push({
                     name: name,
                     type: 'candlestick',

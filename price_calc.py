@@ -16,7 +16,9 @@ class price_state:
         self.corate = 0
         self.date = ""
 
-def loal_data(end_date = datetime.datetime.today(),freq = 'D'):
+def loal_data(end_date = None,freq = 'D'):
+    if end_date == None:
+        end_date = datetime.datetime.today()
     if freq == 'D':
         _history_data_daily = tushareDownload.get_share_data(end_data=end_date.strftime("%Y-%m-%d"))
         return _history_data_daily
